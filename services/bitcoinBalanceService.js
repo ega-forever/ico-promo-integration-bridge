@@ -6,32 +6,27 @@ const config = require('../config'),
 module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
-    let account = dbConnection.models.addresses.findOne({
-      where: {hash: payload.address}
+    let account = await dbConnection.models.addresses.findOne({
+      where: {
+        hash: payload.address,
+        name: config.type
+      }
     });
 
-    if (account) {
-      let tx = await dbConnection.models.transactions.findOne({
-        where: {
-          hash: payload.tx.txid
-        }
+    if (account && _.get(payload, 'tx.confirmations', 0) > 0) {
+      dbConnection.models.payments.create({
+        user_id: account.user_id,
+        address: account.hash,
+        type: config.type,
+        txid: payload.tx.txid,
+        amount: _.get(payload, 'balances.confirmations6') ||
+        _.get(payload, 'balances.confirmations3') ||
+        _.get(payload, 'balances.confirmations0', 0),
+        data: JSON.stringify(payload.tx)
+      }).catch(e => {
+        if (!(e instanceof dbConnection.sequelize.UniqueConstraintError))
+          return Promise.reject(e);
       });
-
-      if (_.get(payload, 'tx.confirmations', 0) > 0)
-        tx ?
-          tx.update({
-            balance: _.get(payload, 'balances.confirmations6') ||
-            _.get(payload, 'balances.confirmations3') ||
-            _.get(payload, 'balances.confirmations0', 0)
-          }) :
-          dbConnection.models.transactions.create({
-            address_id: account.id,
-            hash: payload.tx.txid,
-            block_number: payload.tx.block,
-            balance: _.get(payload, 'balances.confirmations6') ||
-            _.get(payload, 'balances.confirmations3') ||
-            _.get(payload, 'balances.confirmations0', 0)
-          });
     }
 
   } catch (e) {
