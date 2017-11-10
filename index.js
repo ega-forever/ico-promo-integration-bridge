@@ -69,9 +69,8 @@ let init = async () => {
     await channel.assertExchange('events', 'topic', {durable: false});
     await channel.assertQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`);
 
-    ['BTC'].includes(config.type) ?
-      await channel.bindQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, 'events', `${config.rabbit.serviceName}_balance.*`) :
-      await channel.bindQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, 'events', `${config.rabbit.serviceName}_transaction.*`);
+    await channel.bindQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, 'events',
+      `${config.rabbit.serviceName}_${['BTC'].includes(config.type) ? 'balance' : 'transaction'}.*`);
   } catch (e) {
     log.error(e);
     channel = await conn.createChannel();
