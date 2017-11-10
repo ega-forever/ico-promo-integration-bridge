@@ -1,6 +1,7 @@
 const MySQLEvents = require('mysql-events'),
   _ = require('lodash'),
-  config = require('./config');
+  request = require('request-promise'),
+  config = require('../config');
 
 module.exports = () => {
 
@@ -29,9 +30,9 @@ module.exports = () => {
       }
 
       if (oldRow === null || (
-          _.get(oldRow, 'fields.hash') &&
+        _.get(oldRow, 'fields.hash') &&
           _.get(newRow, 'fields.hash')
-        )) {
+      )) {
         return await request({
           url: `${config.rest}/addr`,
           method: 'post',

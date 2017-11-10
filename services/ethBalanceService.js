@@ -15,7 +15,7 @@ module.exports = async (data, channel, dbConnection) => {
 
     if (account && payload.value > 0) {
       dbConnection.models.payments.create({
-        user_id: account.user_id,
+        user_id: account.user_id, // eslint-disable-line
         type: config.type,
         amount: payload.value,
         address: payload.to,

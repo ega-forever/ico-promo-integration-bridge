@@ -7,6 +7,7 @@ const config = require('./config'),
   bitcoinBalanceService = require('./services/bitcoinBalanceService'),
   ethBalanceService = require('./services/ethBalanceService'),
   erc20BalanceService = require('./services/erc20BalanceService'),
+  watchAccountsChangesService = require('./services/watchAccountsChangesService'),
   log = bunyan.createLogger({name: 'core.icoPromo'}),
   amqp = require('amqplib');
 
@@ -33,20 +34,21 @@ let init = async () => {
       process.exit(0);
     });
   let channel = await conn.createChannel();
-
   channel.on('close', () => {
     log.error('rabbitmq process has finished!');
     process.exit(0);
   });
 
+  watchAccountsChangesService();
+
   let accounts = await dbConnection.models.addresses.findAll({
-      where: {
-        hash: {
-          [Sequelize.Op.ne]: null
-        },
-        name: config.type
-      }
-    }) || [];
+    where: {
+      hash: {
+        [Sequelize.Op.ne]: null
+      },
+      name: config.type
+    }
+  }) || [];
 
   log.info('registering accounts on middleware');
   for (let account of accounts) {
