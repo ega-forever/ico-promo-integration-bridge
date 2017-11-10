@@ -10,8 +10,6 @@ module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
 
-    if (payload.logs)
-      console.log(payload)
     let filtered = await filterTxsBySMEvents(payload, smEvents, dbConnection);
     filtered = _.filter(filtered, {event: 'Transfer'});
 
@@ -19,7 +17,7 @@ module.exports = async (data, channel, dbConnection) => {
       let account = await dbConnection.models.addresses.findOne({
         where: {
           hash: event.args.from,
-          name: config.type
+          name: 'ETH'
         }
       });
 

@@ -17,8 +17,6 @@ module.exports = async (tx, smEvents, dbConnection) => {
     }
   });
 
-  console.log(addresses);
-
   return _.chain(tx.logs)
     .filter(log =>
       _.find(addresses, {address: log.address})

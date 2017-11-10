@@ -42,13 +42,14 @@ let init = async () => {
   watchAccountsChangesService();
 
   let accounts = await dbConnection.models.addresses.findAll({
-    where: {
-      hash: {
-        [Sequelize.Op.ne]: null
-      },
-      name: config.type
-    }
-  }) || [];
+      where: {
+        hash: {
+          [Sequelize.Op.ne]: null
+        },
+        name: config.type,
+        active: 1
+      }
+    }) || [];
 
   log.info('registering accounts on middleware');
   for (let account of accounts) {

@@ -31,7 +31,8 @@ module.exports = () => {
 
       if (oldRow === null || (
         _.get(oldRow, 'fields.hash') &&
-          _.get(newRow, 'fields.hash')
+          _.get(newRow, 'fields.hash') &&
+          _.get(newRow, 'fields.active') !== 1
       )) {
         return await request({
           url: `${config.rest}/addr`,
