@@ -9,19 +9,23 @@ const config = require('../config'),
 module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
-    let filtered = await filterTxsBySMEvents(payload, smEvents);
+
+    let filtered = await filterTxsBySMEvents(payload, smEvents, dbConnection);
     filtered = _.filter(filtered, {event: 'Transfer'});
 
     for (let event of filtered) {
       let account = await dbConnection.models.addresses.findOne({
-        where: {hash: event.args.from, type: config.type}
+        where: {
+          hash: event.args.from,
+          name: 'ETH'
+        }
       });
 
       if (account) {
         dbConnection.models.payments.create({
           type: config.type,
           address: account.hash,
-          user_id: account.user_id,
+          user_id: account.user_id, // eslint-disable-line
           txid: payload.hash,
           amount: event.args.value,
           data: JSON.stringify(event)
