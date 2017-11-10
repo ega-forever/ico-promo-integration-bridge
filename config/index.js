@@ -20,8 +20,8 @@ require('dotenv').config();
 
 module.exports = {
   type: 'BTC', //BTC, ETH, SNT
-  //rest: 'http://localhost:8082',
-  rest: 'http://localhost:8081',
+  rest: 'http://localhost:8082',
+  //rest: 'http://localhost:8081',
   db: {
     dialect: 'mysql',
     host: 'localhost',

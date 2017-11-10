@@ -1,7 +1,7 @@
 const config = require('./config'),
   bunyan = require('bunyan'),
   Connection = require('sequelize-connect'),
-  //Sequelize = require('sequelize'),
+  Sequelize = require('sequelize'),
   path = require('path'),
   request = require('request-promise'),
   bitcoinBalanceService = require('./services/bitcoinBalanceService'),
@@ -39,28 +39,28 @@ let init = async () => {
     process.exit(0);
   });
 
-  /*  let accounts = await dbConnection.models.addresses.findAll({
-   where: {
-   hash: {
-   [Sequelize.Op.ne]: null
-   },
-   name: config.type
-   }
-   }) || [];
+  let accounts = await dbConnection.models.addresses.findAll({
+      where: {
+        hash: {
+          [Sequelize.Op.ne]: null
+        },
+        name: config.type
+      }
+    }) || [];
 
-   /!*  log.info('registering accounts on middleware');
-   for (let account of accounts) {
-   await request({
-   url: `${config.rest}/addr`,
-   method: 'post',
-   body: {
-   address: account.hash
-   },
-   json: true
-   });
+  log.info('registering accounts on middleware');
+  for (let account of accounts) {
+    await request({
+      url: `${config.rest}/addr`,
+      method: 'post',
+      body: {
+        address: account.hash
+      },
+      json: true
+    });
 
-   }
-   log.info('listening to balance changes...');*!/*/
+  }
+  log.info('listening to balance changes...');
 
   try {
     await channel.assertExchange('events', 'topic', {durable: false});
