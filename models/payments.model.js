@@ -1,0 +1,20 @@
+/*eslint camelcase:0*/
+
+module.exports = (sequelize, DataTypes) => {
+
+  return sequelize.define('payments', {
+    id: {type: DataTypes.INTEGER(11), primaryKey: true, autoIncrement: true},
+    user_id: DataTypes.INTEGER(11),
+    type: {type: DataTypes.STRING(64), unique: 'compositeIndex'},
+    amount: DataTypes.DOUBLE,
+    address: DataTypes.STRING(128),
+    txid: {type: DataTypes.STRING(512), unique: 'compositeIndex'},
+    data: DataTypes.TEXT('long')
+  }, {
+    timestamps: true,
+    underscored : true
+  });
+
+};
+
+
