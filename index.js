@@ -8,6 +8,7 @@ const config = require('./config'),
   ethBalanceService = require('./services/ethBalanceService'),
   erc20BalanceService = require('./services/erc20BalanceService'),
   watchAccountsChangesService = require('./services/watchAccountsChangesService'),
+  updateAccountRest = require('./utils/updateAccountRest'),
   log = bunyan.createLogger({name: 'core.icoPromo'}),
   amqp = require('amqplib');
 
@@ -46,23 +47,15 @@ let init = async () => {
         hash: {
           [Sequelize.Op.ne]: null
         },
-        name: config.type,
+        name: config.type === 'SNT' ? 'ETH' : config.type,
         active: 1
       }
     }) || [];
 
   log.info('registering accounts on middleware');
-  for (let account of accounts) {
-    await request({
-      url: `${config.rest}/addr`,
-      method: 'post',
-      body: {
-        address: account.hash
-      },
-      json: true
-    });
+  for (let account of accounts)
+    await updateAccountRest('post', account.hash);
 
-  }
   log.info('listening to balance changes...');
 
   try {
