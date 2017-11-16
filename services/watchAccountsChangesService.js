@@ -13,7 +13,7 @@ module.exports = () => {
   });
 
   dbConnection.add(
-    `${config.db.database}.addresses`,
+    `${config.db.database}.${config.db.tables.addresses}`,
     async function (oldRow, newRow) {
 
       if (newRow === null || ( //remove

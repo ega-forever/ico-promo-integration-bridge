@@ -6,7 +6,7 @@ const config = require('../config'),
 module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
-    let account = await dbConnection.models.addresses.findOne({
+    let account = await dbConnection.models[config.db.tables.addresses].findOne({
       where: {
         hash: payload.address,
         name: config.type
@@ -14,7 +14,7 @@ module.exports = async (data, channel, dbConnection) => {
     });
 
     if (account && _.get(payload, 'tx.confirmations', 0) > 0) {
-      dbConnection.models.payments.create({
+      dbConnection.models[config.db.tables.payments].create({
         user_id: account.user_id, // eslint-disable-line
         address: account.hash,
         type: config.type,

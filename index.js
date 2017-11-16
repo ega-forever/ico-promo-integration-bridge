@@ -42,7 +42,7 @@ let init = async () => {
 
   watchAccountsChangesService();
 
-  let accounts = await dbConnection.models.addresses.findAll({
+  let accounts = await dbConnection.models[config.db.tables.addresses].findAll({
       where: {
         hash: {
           [Sequelize.Op.ne]: null
