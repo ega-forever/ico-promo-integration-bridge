@@ -14,7 +14,7 @@ module.exports = async (data, channel, dbConnection) => {
     filtered = _.filter(filtered, {event: 'Transfer'});
 
     for (let event of filtered) {
-      let account = await dbConnection.models.addresses.findOne({
+      let account = await dbConnection.models[config.db.tables.addresses].findOne({
         where: {
           hash: event.args.from,
           name: 'ETH'
@@ -22,7 +22,7 @@ module.exports = async (data, channel, dbConnection) => {
       });
 
       if (account) {
-        dbConnection.models.payments.create({
+        dbConnection.models[config.db.tables.payments].create({
           type: config.type,
           address: account.hash,
           user_id: account.user_id, // eslint-disable-line

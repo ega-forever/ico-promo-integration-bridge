@@ -1,4 +1,5 @@
 require('dotenv').config();
+const _ = require('lodash');
 
 /**
  * @factory config
@@ -31,7 +32,12 @@ module.exports = {
     port: process.env.DB_PORT || 3306,
     database: process.env.DB_NAME || 'data',
     login: process.env.DB_USER || 'root',
-    pass: process.env.DB_PASS || '123'
+    pass: _.isString(process.env.DB_PASS) ? process.env.DB_PASS : '123',
+    tables: {
+      addresses: process.env.DB_TABLE_ADDRESSES || 'addresses',
+      payments: process.env.DB_TABLE_PAYMENTS || 'payments',
+      erc20_tokens: process.env.DB_TABLE_ERC20 || 'erc20_tokens'
+    }
   },
   rabbit: {
     url: process.env.RABBIT_URI || 'amqp://localhost:5672',

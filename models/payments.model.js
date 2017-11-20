@@ -1,8 +1,10 @@
 /*eslint camelcase:0*/
 
+const config = require('../config');
+
 module.exports = (sequelize, DataTypes) => {
 
-  return sequelize.define('payments', {
+  return sequelize.define(config.db.tables.payments, {
     id: {type: DataTypes.INTEGER(11), primaryKey: true, autoIncrement: true},
     user_id: DataTypes.INTEGER(11),
     type: {type: DataTypes.STRING(64), unique: 'compositeIndex'},
