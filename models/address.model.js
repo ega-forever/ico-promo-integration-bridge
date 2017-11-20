@@ -1,9 +1,10 @@
 /*eslint camelcase:0*/
 
+const config = require('../config');
 
 module.exports = (sequelize, DataTypes) => {
 
-  return sequelize.define('addresses', {
+  return sequelize.define(config.db.tables.addresses, {
     id: { type: DataTypes.INTEGER(11), primaryKey: true, autoIncrement: true },
     name: DataTypes.STRING(64),
     hash: DataTypes.STRING(256),

@@ -6,7 +6,7 @@ module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
 
-    let account = await dbConnection.models.addresses.findOne({
+    let account = await dbConnection.models[config.db.tables.addresses].findOne({
       where: {
         hash: payload.to,
         name: config.type
@@ -14,7 +14,7 @@ module.exports = async (data, channel, dbConnection) => {
     });
 
     if (account && payload.value > 0) {
-      dbConnection.models.payments.create({
+      dbConnection.models[config.db.tables.payments].create({
         user_id: account.user_id, // eslint-disable-line
         type: config.type,
         amount: payload.value,
