@@ -33,6 +33,7 @@ DB_PORT=3306
 DB_NAME=data
 DB_USER=root
 DB_PASS=123
+DB_SYNC=1
 ```
 
 The options are presented below:
@@ -47,6 +48,7 @@ The options are presented below:
 | DB_NAME   | database name
 | DB_USER   | username
 | DB_PASS   | password
+| DB_SYNC   | autocreate tables
 
 License
 ----
