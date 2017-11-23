@@ -37,7 +37,8 @@ module.exports = {
       addresses: process.env.DB_TABLE_ADDRESSES || 'addresses',
       payments: process.env.DB_TABLE_PAYMENTS || 'payments',
       erc20_tokens: process.env.DB_TABLE_ERC20 || 'erc20_tokens'
-    }
+    },
+    sync: process.env.DB_SYNC || false
   },
   rabbit: {
     url: process.env.RABBIT_URI || 'amqp://localhost:5672',
