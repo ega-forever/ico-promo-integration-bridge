@@ -1,6 +1,6 @@
 const config = require('./config'),
   bunyan = require('bunyan'),
-  Connection = require('sequelize-connect'),
+  Connection = require('./controllers/SequilizeController'),
   Sequelize = require('sequelize'),
   path = require('path'),
   request = require('request-promise'),
@@ -23,10 +23,9 @@ let init = async () => {
   let dbConnection = await new Connection(config.db.database,
     config.db.login, config.db.pass, {
       dialect: config.db.dialect,
-      port: config.db.port,
-      host: config.db.host
+      sync: config.db.sync
     },
-    [path.join(__dirname, 'models')]
+    path.join(__dirname, 'models')
   );
 
   let conn = await amqp.connect(config.rabbit.url)
