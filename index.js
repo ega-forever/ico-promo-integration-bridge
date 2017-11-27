@@ -51,9 +51,20 @@ let init = async () => {
       }
     }) || [];
 
+  let tokens = config.type === 'ETH' ? await dbConnection.models[config.db.tables.settings].findAll({
+      where: {
+        eth_ico_address: {
+          [Sequelize.Op.ne]: null
+        }
+      }
+    }) || [] : [];
+
   log.info('registering accounts on middleware');
   for (let account of accounts)
-    await updateAccountRest('post', account.hash);
+    await updateAccountRest('post', tokens.length > 0 ? {
+      address: account.hash,
+      erc20tokens: tokens.map(token => token.eth_ico_address)
+    } : {address: account.hash});
 
   log.info('listening to balance changes...');
 
@@ -62,7 +73,7 @@ let init = async () => {
     await channel.assertQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`);
 
     await channel.bindQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, 'events',
-      `${config.rabbit.serviceName}_${['BTC'].includes(config.type) ? 'balance' : 'transaction'}.*`);
+      `${config.rabbit.serviceName}_${['BTC', 'LTC'].includes(config.type) ? 'balance' : 'transaction'}.*`);
   } catch (e) {
     log.error(e);
     channel = await conn.createChannel();
@@ -73,7 +84,7 @@ let init = async () => {
   if (config.type === 'ETH')
     return channel.consume(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, async data => ethBalanceService(data, channel, dbConnection));
 
-  if (['BTC'].includes(config.type))
+  if (['BTC', 'LTC'].includes(config.type))
     channel.consume(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, async data => bitcoinBalanceService(data, channel, dbConnection));
 
   if (config.type === 'SNT')

@@ -4,9 +4,8 @@ const config = require('../config'),
 
 module.exports = async (action, payload)=>{
 
-  console.log(payload)
   return await request({
-    url: `${config.rest}/addr`,
+    url: `${config.rest}/addr/${payload.address}/token`,
     method: action,
     body: payload,
     json: true
