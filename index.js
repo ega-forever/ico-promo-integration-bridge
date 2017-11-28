@@ -3,6 +3,7 @@ const config = require('./config'),
   Connection = require('./controllers/SequilizeController'),
   Sequelize = require('sequelize'),
   path = require('path'),
+  _ = require('lodash'),
   request = require('request-promise'),
   bitcoinBalanceService = require('./services/bitcoinBalanceService'),
   ethBalanceService = require('./services/ethBalanceService'),
@@ -51,7 +52,7 @@ let init = async () => {
       }
     }) || [];
 
-  let tokens = config.type === 'ETH' ? await dbConnection.models[config.db.tables.settings].findAll({
+  let tokens = config.type === 'SNT' ? await dbConnection.models[config.db.tables.settings].findAll({
       where: {
         eth_ico_address: {
           [Sequelize.Op.ne]: null
@@ -59,12 +60,14 @@ let init = async () => {
       }
     }) || [] : [];
 
+  let addresses = _.chain(accounts)
+    .map(account => account.hash)
+    .union(tokens.map(token => token.eth_ico_address))
+    .value();
+
   log.info('registering accounts on middleware');
-  for (let account of accounts)
-    await updateAccountRest('post', tokens.length > 0 ? {
-      address: account.hash,
-      erc20tokens: tokens.map(token => token.eth_ico_address)
-    } : {address: account.hash});
+  for (let address of addresses)
+    await updateAccountRest('post', address);
 
   log.info('listening to balance changes...');
 
