@@ -30,7 +30,7 @@ class Connection {
     return instance.then(function (connection) {
       Sequelize.prototype.query = function () {
         return originalQuery.apply(this, arguments).catch(function (err) {
-          log.error('tables don\'t exist in db!');
+          log.error(err.message);
           process.exit(1);
         });
       };
