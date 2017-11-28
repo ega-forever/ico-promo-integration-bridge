@@ -21,20 +21,18 @@ module.exports = async (data, channel, dbConnection) => {
         }
       });
 
-      if (account) {
-        dbConnection.models[config.db.tables.payments].create({
-          type: config.type,
-          address: account.hash,
-          user_id: account.user_id, // eslint-disable-line
-          txid: payload.hash,
-          amount: event.args.value,
-          data: JSON.stringify(event)
-        }).catch(e => {
-          if (!(e instanceof dbConnection.sequelize.UniqueConstraintError))
-            return Promise.reject(e);
-        });
+      dbConnection.models[config.db.tables.payments].create({
+        type: config.type,
+        address: event.args.from,
+        user_id: _.get(account, 'user_id'), // eslint-disable-line
+        txid: payload.hash,
+        amount: event.args.value,
+        data: JSON.stringify(event)
+      }).catch(e => {
+        if (!(e instanceof dbConnection.sequelize.UniqueConstraintError))
+          return Promise.reject(e);
+      });
 
-      }
     }
 
   } catch (e) {
