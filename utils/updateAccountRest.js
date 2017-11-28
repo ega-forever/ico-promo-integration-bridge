@@ -2,13 +2,14 @@ const config = require('../config'),
   request = require('request-promise');
 
 
-module.exports = async (action, payload)=>{
+module.exports = async (action, hash)=>{
 
-  console.log(payload)
   return await request({
     url: `${config.rest}/addr`,
     method: action,
-    body: payload,
+    body: {
+      address: hash
+    },
     json: true
   });
 

@@ -2,7 +2,6 @@ const MySQLEvents = require('mysql-events'),
   _ = require('lodash'),
   request = require('request-promise'),
   updateAccountRest = require('../utils/updateAccountRest'),
-  updateERC20Rest = require('../utils/updateERC20Rest'),
   config = require('../config');
 
 module.exports = () => {
@@ -41,14 +40,14 @@ module.exports = () => {
         _.get(oldRow, 'fields.eth_ico_address') &&
         _.get(newRow, 'fields.eth_ico_address'))
       ) {
-        await updateERC20Rest('delete', {erc20tokens: [_.get(oldRow, 'fields.eth_ico_address')]});
+        await updateAccountRest('delete', _.get(oldRow, 'fields.eth_ico_address'));
       }
 
       if (oldRow === null || (
           _.get(oldRow, 'fields.eth_ico_address') &&
           _.get(newRow, 'fields.eth_ico_address')
         )) {
-        return await updateERC20Rest('post', {erc20tokens: [_.get(oldRow, 'fields.eth_ico_address')]});
+        await updateAccountRest('post', _.get(oldRow, 'fields.eth_ico_address'));
 
       }
     });
