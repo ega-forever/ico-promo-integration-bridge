@@ -23,6 +23,7 @@ let init = async () => {
 
   let dbConnection = await new Connection(config.db.database,
     config.db.login, config.db.pass, {
+      host: config.db.host,
       dialect: config.db.dialect,
       sync: config.db.sync
     },
