@@ -39,7 +39,7 @@ module.exports = {
       erc20_tokens: process.env.DB_TABLE_ERC20 || 'erc20_tokens',
       settings: process.env.DB_TABLE_SETTINGS || 'settings'
     },
-    sync: process.env.DB_SYNC || false
+    sync: parseInt(process.env.DB_SYNC) || false
   },
   rabbit: {
     url: process.env.RABBIT_URI || 'amqp://localhost:5672',
