@@ -20,7 +20,7 @@ module.exports = () => {
         _.get(oldRow, 'fields.hash') &&
         _.get(newRow, 'fields.hash'))
       ) {
-        await updateAccountRest('delete', _.get(oldRow, 'fields.hash'));
+        await updateAccountRest('delete', {address: _.get(oldRow, 'fields.hash')});
       }
 
       if (oldRow === null || (
@@ -28,7 +28,27 @@ module.exports = () => {
           _.get(newRow, 'fields.hash') &&
           _.get(newRow, 'fields.active', 1) === 1
         )) {
-        return await updateAccountRest('post', _.get(newRow, 'fields.hash'));
+        return await updateAccountRest('post', {address: _.get(newRow, 'fields.hash')});
+      }
+    });
+
+  dbConnection.add(
+    `${config.db.database}.${config.db.tables.settings}`,
+    async function (oldRow, newRow) {
+
+      if (newRow === null || ( //remove
+        _.get(oldRow, 'fields.eth_ico_address') &&
+        _.get(newRow, 'fields.eth_ico_address'))
+      ) {
+        await updateAccountRest('delete', _.get(oldRow, 'fields.eth_ico_address'));
+      }
+
+      if (oldRow === null || (
+          _.get(oldRow, 'fields.eth_ico_address') &&
+          _.get(newRow, 'fields.eth_ico_address')
+        )) {
+        await updateAccountRest('post', _.get(oldRow, 'fields.eth_ico_address'));
+
       }
     });
 

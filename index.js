@@ -3,6 +3,7 @@ const config = require('./config'),
   Connection = require('./controllers/SequilizeController'),
   Sequelize = require('sequelize'),
   path = require('path'),
+  _ = require('lodash'),
   request = require('request-promise'),
   bitcoinBalanceService = require('./services/bitcoinBalanceService'),
   ethBalanceService = require('./services/ethBalanceService'),
@@ -51,9 +52,22 @@ let init = async () => {
       }
     }) || [];
 
+  let tokens = config.type === 'SNT' ? await dbConnection.models[config.db.tables.settings].findAll({
+      where: {
+        eth_ico_address: {
+          [Sequelize.Op.ne]: null
+        }
+      }
+    }) || [] : [];
+
+  let addresses = _.chain(accounts)
+    .map(account => account.hash)
+    .union(tokens.map(token => token.eth_ico_address))
+    .value();
+
   log.info('registering accounts on middleware');
-  for (let account of accounts)
-    await updateAccountRest('post', account.hash);
+  for (let address of addresses)
+    await updateAccountRest('post', address);
 
   log.info('listening to balance changes...');
 
@@ -62,7 +76,7 @@ let init = async () => {
     await channel.assertQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`);
 
     await channel.bindQueue(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, 'events',
-      `${config.rabbit.serviceName}_${['BTC'].includes(config.type) ? 'balance' : 'transaction'}.*`);
+      `${config.rabbit.serviceName}_${['BTC', 'LTC'].includes(config.type) ? 'balance' : 'transaction'}.*`);
   } catch (e) {
     log.error(e);
     channel = await conn.createChannel();
@@ -73,7 +87,7 @@ let init = async () => {
   if (config.type === 'ETH')
     return channel.consume(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, async data => ethBalanceService(data, channel, dbConnection));
 
-  if (['BTC'].includes(config.type))
+  if (['BTC', 'LTC'].includes(config.type))
     channel.consume(`app_${config.rabbit.icoServiceName}.balance_watcher.${config.type}`, async data => bitcoinBalanceService(data, channel, dbConnection));
 
   if (config.type === 'SNT')
