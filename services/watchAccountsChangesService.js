@@ -9,12 +9,17 @@ module.exports = () => {
   let dbConnection = MySQLEvents({
     host: config.db.host,
     user: config.db.login,
-    password: config.db.pass
+    password: config.db.pass,
+  }, {
+    serverId: Date.now()
   });
 
   dbConnection.add(
     `${config.db.database}.${config.db.tables.addresses}`,
     async function (oldRow, newRow) {
+
+      if ((_.get(oldRow, 'fields.name') || _.get(newRow, 'fields.name')) !== (config.type === 'SNT' ? 'ETH' : config.type))
+        return;
 
       if (newRow === null || ( //remove
         _.get(oldRow, 'fields.hash') &&
@@ -28,7 +33,7 @@ module.exports = () => {
           _.get(newRow, 'fields.hash') &&
           _.get(newRow, 'fields.active', 1) === 1
         )) {
-        return await updateAccountRest('post',  _.get(newRow, 'fields.hash'));
+        return await updateAccountRest('post', _.get(newRow, 'fields.hash'));
       }
     });
 
