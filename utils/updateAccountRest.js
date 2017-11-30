@@ -8,7 +8,7 @@ module.exports = async (action, hash)=>{
     url: `${config.rest}/addr`,
     method: action,
     body: {
-      address: hash.toLowerCase()
+      address: ['ETH', 'SNT'].includes(config.type) ? hash.toLowerCase() : hash
     },
     json: true
   });
