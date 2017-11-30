@@ -8,7 +8,7 @@ module.exports = async (action, hash)=>{
     url: `${config.rest}/addr`,
     method: action,
     body: {
-      address: hash
+      address: hash.toLowerCase()
     },
     json: true
   });
