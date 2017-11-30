@@ -20,7 +20,7 @@ module.exports = () => {
         _.get(oldRow, 'fields.hash') &&
         _.get(newRow, 'fields.hash'))
       ) {
-        await updateAccountRest('delete', {address: _.get(oldRow, 'fields.hash')});
+        await updateAccountRest('delete', _.get(oldRow, 'fields.hash'));
       }
 
       if (oldRow === null || (
@@ -28,7 +28,7 @@ module.exports = () => {
           _.get(newRow, 'fields.hash') &&
           _.get(newRow, 'fields.active', 1) === 1
         )) {
-        return await updateAccountRest('post', {address: _.get(newRow, 'fields.hash')});
+        return await updateAccountRest('post',  _.get(newRow, 'fields.hash'));
       }
     });
 
