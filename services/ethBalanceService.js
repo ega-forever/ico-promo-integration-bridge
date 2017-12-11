@@ -1,6 +1,4 @@
-const config = require('../config'),
-  bunyan = require('bunyan'),
-  log = bunyan.createLogger({name: 'services.ethBalanceService'});
+const config = require('../config');
 
 module.exports = async (data, channel, dbConnection) => {
   try {
