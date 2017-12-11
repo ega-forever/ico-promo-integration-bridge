@@ -1,11 +1,22 @@
 const config = require('../config'),
-  _ = require('lodash'),
-  bunyan = require('bunyan'),
-  log = bunyan.createLogger({name: 'services.bitcoinBalanceService'});
+  _ = require('lodash');
 
 module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
+
+    let inputValue = _.chain(payload)
+      .get('tx.inputs')
+      .find(input => input.addresses.includes(payload.address))
+      .get('value', 0)
+      .value();
+
+    let outputValue = _.chain(payload)
+      .get('tx.outputs')
+      .find(output => output.scriptPubKey.addresses.includes(payload.address))
+      .get('value', 0)
+      .value();
+
     let account = await dbConnection.models[config.db.tables.addresses].findOne({
       where: {
         hash: payload.address,
@@ -13,16 +24,15 @@ module.exports = async (data, channel, dbConnection) => {
       }
     });
 
-    if (account && _.get(payload, 'tx.confirmations', 0) > 0) {
-      dbConnection.models[config.db.tables.payments].create({
+    if (account && (inputValue || outputValue) && _.get(payload, 'tx.confirmations', 0) >= 0) {
+      await dbConnection.models[config.db.tables.payments].create({
         user_id: account.user_id, // eslint-disable-line
         address: account.hash,
         type: config.type,
         txid: payload.tx.txid,
-        amount: _.get(payload, 'balances.confirmations6') ||
-        _.get(payload, 'balances.confirmations3') ||
-        _.get(payload, 'balances.confirmations0', 0),
-        data: JSON.stringify(payload.tx)
+        amount: Math.abs(outputValue - inputValue),
+        withdraw: inputValue ? 1 : 0,
+        data: JSON.stringify(payload.tx.inputs)
       }).catch(e => {
         if (!(e instanceof dbConnection.sequelize.UniqueConstraintError))
           return Promise.reject(e);
