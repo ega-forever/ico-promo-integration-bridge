@@ -2,8 +2,6 @@ const MySQLEvents = require('mysql-events'),
   _ = require('lodash'),
   request = require('request-promise'),
   updateAccountRest = require('../utils/updateAccountRest'),
-  bunyan = require('bunyan'),
-  log = bunyan.createLogger({name: 'core.icoPromo.services.watchAccountsChangesService'}),
   config = require('../config');
 
 module.exports = () => {

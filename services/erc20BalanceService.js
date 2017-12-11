@@ -3,8 +3,7 @@ const config = require('../config'),
   _ = require('lodash'),
   erc20token = require('../build/contracts/TokenContract.json'),
   smEvents = require('../utils/eventsDefinitions')(erc20token),
-  filterTxsBySMEvents = require('../utils/filterTxsBySMEvents'),
-  log = bunyan.createLogger({name: 'services.erc20BalanceService'});
+  filterTxsBySMEvents = require('../utils/filterTxsBySMEvents');
 
 module.exports = async (data, channel, dbConnection) => {
   try {

@@ -36,6 +36,7 @@ module.exports = {
     tables: {
       addresses: process.env.DB_TABLE_ADDRESSES || 'addresses',
       payments: process.env.DB_TABLE_PAYMENTS || 'payments',
+      logs: process.env.DB_TABLE_LOGS || 'logs',
       erc20_tokens: process.env.DB_TABLE_ERC20 || 'erc20_tokens',
       settings: process.env.DB_TABLE_SETTINGS || 'settings'
     },
