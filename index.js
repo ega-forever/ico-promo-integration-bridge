@@ -35,12 +35,14 @@ let init = async () => {
     info: (msg) => {
       logger.info(msg);
       dbConnection.models[config.db.tables.logs].create({
+        type: config.type,
         level: 1,
         message: JSON.stringify(msg)
       })
     },
     error: async (msg) => {
       await dbConnection.models[config.db.tables.logs].create({
+        type: config.type,
         level: 0,
         message: JSON.stringify(msg)
       });
