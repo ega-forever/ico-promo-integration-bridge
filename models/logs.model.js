@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     id: {type: DataTypes.INTEGER(11), primaryKey: true, autoIncrement: true},
     type: {type: DataTypes.STRING(64)},
     level: {type: DataTypes.BOOLEAN},
-    data: DataTypes.TEXT
+    message: DataTypes.TEXT
   }, {
     timestamps: true,
     underscored : true
