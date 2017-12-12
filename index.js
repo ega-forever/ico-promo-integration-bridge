@@ -4,7 +4,6 @@ const config = require('./config'),
   Sequelize = require('sequelize'),
   path = require('path'),
   _ = require('lodash'),
-  sync = require('sync-promise'),
   bitcoinBalanceService = require('./services/bitcoinBalanceService'),
   ethBalanceService = require('./services/ethBalanceService'),
   erc20BalanceService = require('./services/erc20BalanceService'),
@@ -37,18 +36,17 @@ let init = async () => {
       logger.info(msg);
       dbConnection.models[config.db.tables.logs].create({
         level: 1,
-        data: JSON.stringify(msg)
+        message: JSON.stringify(msg)
       })
     },
     error: async (msg) => {
-      try {
-        await dbConnection.models[config.db.tables.logs].create({
-          level: 0,
-          data: JSON.stringify(msg)
-        });
-      }catch (e){}
+      await dbConnection.models[config.db.tables.logs].create({
+        level: 0,
+        message: JSON.stringify(msg)
+      });
       logger.error(msg);
-    }
+    },
+    parent: logger
   };
 
   let conn = await amqp.connect(config.rabbit.url)
@@ -89,7 +87,7 @@ let init = async () => {
 
   log.info('registering accounts on middleware');
   for (let address of addresses)
-    await updateAccountRest('post', address);
+    await updateAccountRest('post', address)
 
   log.info('listening to balance changes...');
 
