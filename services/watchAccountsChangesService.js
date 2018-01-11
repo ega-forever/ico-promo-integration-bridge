@@ -21,7 +21,7 @@ module.exports = (channel) => {
     `${config.db.database}.${config.db.tables.addresses}`,
     async function (oldRow, newRow) {
 
-      if ((_.get(oldRow, 'fields.name') || _.get(newRow, 'fields.name')) !== (config.type === 'SNT' ? 'ETH' : config.type))
+      if ((_.get(oldRow, 'fields.name') || _.get(newRow, 'fields.name')) !== config.type)
         return;
 
       if (newRow === null || ( //remove
@@ -56,7 +56,9 @@ module.exports = (channel) => {
         _.get(newRow, 'fields.eth_ico_address'))
       ) {
         log.info(`removing address ${_.get(oldRow, 'fields.eth_ico_address')}`);
-        await updateAccountRest('delete', _.get(oldRow, 'fields.eth_ico_address'));
+        await channel.publish('events', `${config.rabbit.serviceName}.account.create`, new Buffer(JSON.stringify({
+          address: _.get(oldRow, 'fields.eth_ico_address')
+        })));
       }
 
       if (oldRow === null || (
@@ -64,7 +66,9 @@ module.exports = (channel) => {
           _.get(newRow, 'fields.eth_ico_address')
         )) {
         log.info(`inserting address ${_.get(newRow, 'fields.eth_ico_address')}`);
-        await updateAccountRest('post', _.get(oldRow, 'fields.eth_ico_address'));
+        return await channel.publish('events', `${config.rabbit.serviceName}.account.create`, new Buffer(JSON.stringify({
+          address: _.get(newRow, 'fields.eth_ico_address')
+        })));
 
       }
     });
