@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     amount: DataTypes.DOUBLE,
     address: DataTypes.STRING(128),
     txid: {type: DataTypes.STRING(512), unique: 'compositeIndex'},
+    withdraw: {type: DataTypes.BOOLEAN},
     data: DataTypes.TEXT('long')
   }, {
     timestamps: true,

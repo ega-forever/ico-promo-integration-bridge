@@ -4,14 +4,15 @@ const config = require('./config'),
   Sequelize = require('sequelize'),
   path = require('path'),
   _ = require('lodash'),
-  request = require('request-promise'),
   bitcoinBalanceService = require('./services/bitcoinBalanceService'),
   ethBalanceService = require('./services/ethBalanceService'),
   erc20BalanceService = require('./services/erc20BalanceService'),
   watchAccountsChangesService = require('./services/watchAccountsChangesService'),
   updateAccountRest = require('./utils/updateAccountRest'),
-  log = bunyan.createLogger({name: 'core.icoPromo'}),
-  amqp = require('amqplib');
+  amqp = require('amqplib'),
+  logger = bunyan.createLogger({name: 'core.icoPromo'});
+
+global.log = bunyan.createLogger({name: 'core.icoPromo'});
 
 /**
  * @module entry point
@@ -30,14 +31,34 @@ let init = async () => {
     path.join(__dirname, 'models')
   );
 
+  global.log = {
+    info: (msg) => {
+      logger.info(msg);
+      dbConnection.models[config.db.tables.logs].create({
+        type: config.type,
+        level: 1,
+        message: JSON.stringify(msg)
+      })
+    },
+    error: async (msg) => {
+      await dbConnection.models[config.db.tables.logs].create({
+        type: config.type,
+        level: 0,
+        message: JSON.stringify(msg)
+      });
+      logger.error(msg);
+    },
+    parent: logger
+  };
+
   let conn = await amqp.connect(config.rabbit.url)
-    .catch(() => {
-      log.error('rabbitmq is not available!');
+    .catch(async () => {
+      await log.error('rabbitmq is not available!');
       process.exit(0);
     });
   let channel = await conn.createChannel();
-  channel.on('close', () => {
-    log.error('rabbitmq process has finished!');
+  channel.on('close', async () => {
+    await log.error('rabbitmq process has finished!');
     process.exit(0);
   });
 
@@ -68,7 +89,7 @@ let init = async () => {
 
   log.info('registering accounts on middleware');
   for (let address of addresses)
-    await updateAccountRest('post', address);
+    await updateAccountRest('post', address)
 
   log.info('listening to balance changes...');
 

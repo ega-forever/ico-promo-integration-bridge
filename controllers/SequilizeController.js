@@ -3,8 +3,6 @@
 const _ = require('lodash'),
   path = require('path'),
   Sequelize = require('sequelize'),
-  bunyan = require('bunyan'),
-  log = bunyan.createLogger({name: 'core.icoPromo'}),
   requireAll = require('require-all');
 
 let instance = null;
@@ -29,10 +27,14 @@ class Connection {
     let originalQuery = Sequelize.prototype.query;
     return instance.then(function (connection) {
       Sequelize.prototype.query = function () {
-        return originalQuery.apply(this, arguments).catch(function (err) {
-          log.error(err.message);
+        return originalQuery.apply(this, arguments).catch(async function (err) {
+          try {
+            await Promise.resolve(log.error(err.message)).timeout(2000);
+          } catch (e) {
+            log.parent.error(err.message);
+          }
           process.exit(1);
-        });
+        })
       };
       return instance = connection;
     });
