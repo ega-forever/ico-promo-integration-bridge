@@ -1,10 +1,9 @@
 const MySQLEvents = require('mysql-events'),
   _ = require('lodash'),
   request = require('request-promise'),
-  updateAccountRest = require('../utils/updateAccountRest'),
   config = require('../config');
 
-module.exports = () => {
+module.exports = (channel) => {
 
   let binlogServerId = Date.now();
 
@@ -15,7 +14,6 @@ module.exports = () => {
   }, {
     serverId: Date.now()
   });
-
 
   log.info(`connected to binlog with the following id: ${binlogServerId}`);
 
@@ -31,7 +29,10 @@ module.exports = () => {
         _.get(newRow, 'fields.hash'))
       ) {
         log.info(`removing address ${_.get(oldRow, 'fields.hash')}`);
-        await updateAccountRest('delete', _.get(oldRow, 'fields.hash'));
+        await channel.publish('events', `${config.rabbit.serviceName}.account.delete`, new Buffer(JSON.stringify({
+          address: _.get(oldRow, 'fields.hash')
+        })));
+
       }
 
       if (oldRow === null || (
@@ -40,7 +41,9 @@ module.exports = () => {
           _.get(newRow, 'fields.active', 1) === 1
         )) {
         log.info(`inserting address ${_.get(newRow, 'fields.hash')}`);
-        return await updateAccountRest('post', _.get(newRow, 'fields.hash'));
+        return await channel.publish('events', `${config.rabbit.serviceName}.account.create`, new Buffer(JSON.stringify({
+          address: _.get(newRow, 'fields.hash')
+        })));
       }
     });
 
