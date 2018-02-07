@@ -26,7 +26,7 @@ module.exports = async (data, channel, dbConnection) => {
         user_id: _.get(account, 'user_id'), // eslint-disable-line
         txid: payload.hash,
         amount: event.args.value,
-        data: _.merge({}, payload, {logs: [event]})
+        data: JSON.stringify(_.merge({}, payload, {logs: [event]}))
       }).catch(e => {
         if (!(e instanceof dbConnection.sequelize.UniqueConstraintError))
           return Promise.reject(e);
