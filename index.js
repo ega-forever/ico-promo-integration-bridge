@@ -8,7 +8,6 @@ const config = require('./config'),
   ethBalanceService = require('./services/ethBalanceService'),
   erc20BalanceService = require('./services/erc20BalanceService'),
   watchAccountsChangesService = require('./services/watchAccountsChangesService'),
-  updateAccountRest = require('./utils/updateAccountRest'),
   amqp = require('amqplib'),
   logger = bunyan.createLogger({name: 'core.icoPromo'});
 
@@ -62,7 +61,7 @@ let init = async () => {
     process.exit(0);
   });
 
-  watchAccountsChangesService();
+  watchAccountsChangesService(channel);
 
   let accounts = await dbConnection.models[config.db.tables.addresses].findAll({
       where: {
@@ -89,7 +88,9 @@ let init = async () => {
 
   log.info('registering accounts on middleware');
   for (let address of addresses)
-    await updateAccountRest('post', address)
+    await channel.publish('events', `${config.rabbit.serviceName}.account.create`, new Buffer(JSON.stringify({
+      address: address
+    })));
 
   log.info('listening to balance changes...');
 

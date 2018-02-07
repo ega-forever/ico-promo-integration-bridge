@@ -24,7 +24,7 @@ module.exports = async (data, channel, dbConnection) => {
       }
     });
 
-    if (account && (inputValue || outputValue) && _.get(payload, 'tx.confirmations', 0) >= 0) {
+    if (account && (inputValue || outputValue) && _.get(payload, 'tx.confirmations', 0) > 0) {
       await dbConnection.models[config.db.tables.payments].create({
         user_id: account.user_id, // eslint-disable-line
         address: account.hash,
