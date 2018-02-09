@@ -4,6 +4,9 @@ module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
 
+    if (payload.blockNumber === -1)
+      return channel.ack(data);
+
     let account = await dbConnection.models[config.db.tables.addresses].findOne({
       where: {
         hash: payload.to,

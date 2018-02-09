@@ -9,6 +9,9 @@ module.exports = async (data, channel, dbConnection) => {
   try {
     let payload = JSON.parse(data.content.toString());
 
+    if(payload.blockNumber === -1)
+      return channel.ack(data);
+
     let filtered = await filterTxsBySMEvents(payload, smEvents, dbConnection);
     filtered = _.filter(filtered, {event: 'Transfer'});
 

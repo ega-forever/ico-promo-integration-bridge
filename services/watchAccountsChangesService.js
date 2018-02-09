@@ -56,7 +56,7 @@ module.exports = (channel) => {
         _.get(newRow, 'fields.eth_ico_address'))
       ) {
         log.info(`removing address ${_.get(oldRow, 'fields.eth_ico_address')}`);
-        await channel.publish('events', `${config.rabbit.serviceName}.account.create`, new Buffer(JSON.stringify({
+        await channel.publish('events', `${config.rabbit.serviceName}.account.delete`, new Buffer(JSON.stringify({
           address: _.get(oldRow, 'fields.eth_ico_address')
         })));
       }
