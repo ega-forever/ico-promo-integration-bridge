@@ -18,7 +18,7 @@ module.exports = async (data, channel, dbConnection) => {
       dbConnection.models[config.db.tables.payments].create({
         user_id: account.user_id, // eslint-disable-line
         type: config.type,
-        amount: payload.value,
+        amount: payload.value / Math.pow(10, 18),
         address: payload.to,
         txid: payload.hash,
         data: JSON.stringify(payload)

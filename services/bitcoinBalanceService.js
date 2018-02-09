@@ -30,7 +30,7 @@ module.exports = async (data, channel, dbConnection) => {
         address: account.hash,
         type: config.type,
         txid: payload.tx.txid,
-        amount: Math.abs(outputValue - inputValue),
+        amount: Math.abs(outputValue - inputValue) / Math.pow(10, 8),
         withdraw: inputValue ? 1 : 0,
         data: JSON.stringify(payload.tx.inputs)
       }).catch(e => {

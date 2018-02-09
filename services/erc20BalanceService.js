@@ -14,6 +14,8 @@ module.exports = async (data, channel, dbConnection) => {
 
     let filtered = await filterTxsBySMEvents(payload, smEvents, dbConnection);
     filtered = _.filter(filtered, {event: 'Transfer'});
+    console.log(filtered)
+
 
     for (let event of filtered) {
       let account = await dbConnection.models[config.db.tables.addresses].findOne({
@@ -28,7 +30,7 @@ module.exports = async (data, channel, dbConnection) => {
         address: event.args.from,
         user_id: _.get(account, 'user_id'), // eslint-disable-line
         txid: payload.hash,
-        amount: event.args.value,
+        amount: event.args.value / Math.pow(10, 18),
         data: JSON.stringify(_.merge({}, payload, {logs: [event]}))
       }).catch(e => {
         if (!(e instanceof dbConnection.sequelize.UniqueConstraintError))
